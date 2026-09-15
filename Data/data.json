@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "lugar": "Café Orinoco",
+    "encargado": "Carlos Pérez",
+    "estatus": "",
+    "promotora": ""
+  },
+  {
+    "id": 2,
+    "lugar": "Emprendimiento Dulces Guayana",
+    "encargado": "María López",
+    "estatus": "",
+    "promotora": ""
+  },
+  {
+    "id": 3,
+    "lugar": "Restaurante El Salto",
+    "encargado": "Luis González",
+    "estatus": "",
+    "promotora": ""
+  }
+]
