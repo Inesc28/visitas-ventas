@@ -1,16 +1,63 @@
 import React from "react";
-import { OPCIONES_ESTATUS } from "../constants/estatusOptions";
 
-export const EstadisticasView = ({ lugares }) => {
-  const totalVendidos = lugares.filter(
-    (l) => l.estatus === "Fuimos y se vendió la app",
-  ).length;
-  const totalRechazados = lugares.filter(
-    (l) => l.estatus === "Fuimos y dijeron que no",
-  ).length;
-  const totalRevisitar = lugares.filter(
-    (l) => l.estatus === "Hay que volver a ir",
-  ).length;
+export const EstadisticasView = ({ lugares = [] }) => {
+  const esVendido = (e) =>
+    e === "vendido" ||
+    String(e || "").toLowerCase().includes("vend") ||
+    String(e || "").toLowerCase().includes("invitac");
+
+  const esRechazado = (e) =>
+    e === "rechazado" ||
+    String(e || "").toLowerCase().includes("no");
+
+  const esRevisitar = (e) =>
+    e === "revisitar" ||
+    String(e || "").toLowerCase().includes("volver") ||
+    String(e || "").toLowerCase().includes("ir");
+
+  const renderBadgeEstatus = (estatus) => {
+    if (!estatus) {
+      return (
+        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-slate-100 text-slate-500 border border-slate-200">
+          Pendiente
+        </span>
+      );
+    }
+
+    if (esVendido(estatus)) {
+      return (
+        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">
+          Vendió / Invitación
+        </span>
+      );
+    }
+
+    if (esRechazado(estatus)) {
+      return (
+        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-rose-100 text-rose-800 border border-rose-200">
+          Dijeron que No / Ausente
+        </span>
+      );
+    }
+
+    if (esRevisitar(estatus)) {
+      return (
+        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-amber-100 text-amber-800 border border-amber-200">
+          Volver a ir
+        </span>
+      );
+    }
+
+    return (
+      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-indigo-100 text-indigo-800 border border-indigo-200">
+        {estatus}
+      </span>
+    );
+  };
+
+  const totalVendidos = lugares.filter((l) => esVendido(l.estatus)).length;
+  const totalRechazados = lugares.filter((l) => esRechazado(l.estatus)).length;
+  const totalRevisitar = lugares.filter((l) => esRevisitar(l.estatus)).length;
   const totalPendientes = lugares.filter((l) => !l.estatus).length;
 
   return (
@@ -111,26 +158,7 @@ export const EstadisticasView = ({ lugares }) => {
                     )}
                   </td>
                   <td className="py-3.5 px-4">
-                    {item.estatus === "Fuimos y se vendió la app" && (
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">
-                        Se vendió la app
-                      </span>
-                    )}
-                    {item.estatus === "Fuimos y dijeron que no" && (
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-rose-100 text-rose-800 border border-rose-200">
-                        Dijeron que no
-                      </span>
-                    )}
-                    {item.estatus === "Hay que volver a ir" && (
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-amber-100 text-amber-800 border border-amber-200">
-                        Volver a ir
-                      </span>
-                    )}
-                    {!item.estatus && (
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-slate-100 text-slate-500 border border-slate-200">
-                        Pendiente
-                      </span>
-                    )}
+                    {renderBadgeEstatus(item.estatus)}
                   </td>
                 </tr>
               ))}
