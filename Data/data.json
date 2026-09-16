@@ -1,23 +1,156 @@
 [
   {
     "id": 1,
-    "lugar": "Café Orinoco",
-    "encargado": "Carlos Pérez",
-    "estatus": "",
-    "promotora": ""
+    "lugar": "Oporto's",
+    "encargado": "Sra. Omaira",
+    "promotora": "",
+    "estatus": ""
   },
   {
     "id": 2,
-    "lugar": "Emprendimiento Dulces Guayana",
-    "encargado": "María López",
-    "estatus": "",
-    "promotora": ""
+    "lugar": "Dore's",
+    "encargado": "Jesus Muñoz",
+    "promotora": "",
+    "estatus": ""
   },
   {
     "id": 3,
-    "lugar": "Restaurante El Salto",
-    "encargado": "Luis González",
-    "estatus": "",
-    "promotora": ""
+    "lugar": "Echa Vaina",
+    "encargado": "Johan Chavez",
+    "promotora": "",
+    "estatus": ""
+  },
+  {
+    "id": 4,
+    "lugar": "La piazza",
+    "encargado": "Orlando Rauchi",
+    "promotora": "",
+    "estatus": ""
+  },
+  {
+    "id": 5,
+    "lugar": "Beijing",
+    "encargado": "Gerente",
+    "promotora": "",
+    "estatus": ""
+  },
+  {
+    "id": 6,
+    "lugar": "Grupo Vip",
+    "encargado": "Virgilio Gomez",
+    "promotora": "",
+    "estatus": ""
+  },
+  {
+    "id": 7,
+    "lugar": "Barra 3",
+    "encargado": "Anmar Escobar",
+    "promotora": "",
+    "estatus": ""
+  },
+  {
+    "id": 8,
+    "lugar": "Euro Building",
+    "encargado": "Gerente",
+    "promotora": "",
+    "estatus": ""
+  },
+  {
+    "id": 9,
+    "lugar": "Plaza Merú",
+    "encargado": "Gerente",
+    "promotora": "",
+    "estatus": ""
+  },
+  {
+    "id": 10,
+    "lugar": "El Triunfo",
+    "encargado": "Veronica Gomez",
+    "promotora": "",
+    "estatus": ""
+  },
+  {
+    "id": 11,
+    "lugar": "Hotel Rosabella",
+    "encargado": "Nuno Vieira",
+    "promotora": "",
+    "estatus": ""
+  },
+  {
+    "id": 12,
+    "lugar": "Tutto pasta",
+    "encargado": "Gerente o dueño",
+    "promotora": "",
+    "estatus": ""
+  },
+  {
+    "id": 13,
+    "lugar": "Hotel Llovizna",
+    "encargado": "Luisa Sosa",
+    "promotora": "",
+    "estatus": ""
+  },
+  {
+    "id": 14,
+    "lugar": "Hassu",
+    "encargado": "Gustavo Rodriguez",
+    "promotora": "",
+    "estatus": ""
+  },
+  {
+    "id": 15,
+    "lugar": "Bonsai",
+    "encargado": "Gerente",
+    "promotora": "",
+    "estatus": ""
+  },
+  {
+    "id": 16,
+    "lugar": "Teana",
+    "encargado": "Claudio Cassianni",
+    "promotora": "",
+    "estatus": ""
+  },
+  {
+    "id": 17,
+    "lugar": "Modo Pizza",
+    "encargado": "Tony Yousef",
+    "promotora": "",
+    "estatus": ""
+  },
+  {
+    "id": 18,
+    "lugar": "Black Sushi",
+    "encargado": "Gerente",
+    "promotora": "",
+    "estatus": ""
+  },
+  {
+    "id": 19,
+    "lugar": "Macarena",
+    "encargado": "",
+    "promotora": "",
+    "estatus": ""
+  },
+  {
+    "id": 20,
+    "lugar": "Soka",
+    "encargado": "Fiorella Barbeta",
+    "promotora": "",
+    "estatus": ""
+  },
+  {
+    "id": 21,
+    "lugar": "Farofa",
+    "encargado": "Danil Nassen",
+    "promotora": "",
+    "estatus": ""
+  },
+  {
+    "id": 22,
+    "lugar": "Layali",
+    "encargado": "Abdes",
+    "promotora": "",
+    "estatus": ""
   }
 ]

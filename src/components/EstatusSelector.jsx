@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 export const EstatusSelector = ({ estatusActual, opciones, onSelect }) => {
   return (
@@ -17,17 +17,17 @@ export const EstatusSelector = ({ estatusActual, opciones, onSelect }) => {
               className={`w-full text-left px-3 py-2 text-xs font-medium rounded-xl border transition-all flex items-center justify-between ${
                 isSelected
                   ? opcion.activeClass
-                  : 'bg-white/60 text-slate-600 border-slate-200/70 hover:border-slate-300 hover:bg-white/90'
+                  : "bg-white/60 text-slate-600 border-slate-200/70 hover:border-slate-300 hover:bg-white/90"
               }`}
             >
               <span className="flex items-center gap-2">
-                <span className={`w-1.5 h-1.5 rounded-full ${opcion.dotColor}`} />
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${opcion.dotColor}`}
+                />
                 {opcion.label}
               </span>
               {isSelected && (
-                <span className="text-[10px] font-bold text-slate-500">
-                  ✓
-                </span>
+                <span className="text-[10px] font-bold text-slate-500">✓</span>
               )}
             </button>
           );
