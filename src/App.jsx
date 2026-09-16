@@ -5,16 +5,18 @@ import { Header } from "./components/Header";
 import { LugarCard } from "./components/LugarCard";
 import { EstadisticasView } from "./components/EstadisticasView";
 
+const STORAGE_KEY = "promotoras_lugares_v2";
+
 const App = () => {
   const [vista, setVista] = useState("tarjetas");
 
   const [lugares, setLugares] = useState(() => {
-    const savedData = localStorage.getItem("promotoras_lugares_data");
+    const savedData = localStorage.getItem(STORAGE_KEY);
     return savedData ? JSON.parse(savedData) : initialData;
   });
 
   useEffect(() => {
-    localStorage.setItem("promotoras_lugares_data", JSON.stringify(lugares));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(lugares));
   }, [lugares]);
 
   const handleEstatusSelect = (id, nuevoEstatus) => {
