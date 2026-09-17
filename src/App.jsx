@@ -6,11 +6,13 @@ import { OPCIONES_ESTATUS } from "./constants/estatusOptions";
 import { Header } from "./components/Header";
 import { LugarCard } from "./components/LugarCard";
 import { EstadisticasView } from "./components/EstadisticasView";
+import { AgregarLugarModal } from "./components/AgregarLugarModal";
 
 const App = () => {
   const [vista, setVista] = useState("tarjetas");
   const [lugares, setLugares] = useState([]);
   const [cargando, setCargando] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const docRef = doc(db, "promotoras_app", "general");
 
@@ -42,6 +44,21 @@ const App = () => {
     } catch (error) {
       console.error("Error al actualizar la nube:", error);
     }
+  };
+
+  const handleAgregarLugar = (datosNuevoLugar) => {
+    const nuevoId =
+      lugares.length > 0
+        ? Math.max(...lugares.map((l) => Number(l.id) || 0)) + 1
+        : 1;
+
+    const nuevoLugar = {
+      id: nuevoId,
+      ...datosNuevoLugar,
+    };
+
+    const listaActualizada = [nuevoLugar, ...lugares];
+    actualizarEnNube(listaActualizada);
   };
 
   const handleEstatusSelect = (id, nuevoEstatus) => {
@@ -89,6 +106,19 @@ const App = () => {
           gestionados={gestionadosCount}
         />
 
+        <div className="flex justify-between items-center bg-white/70 backdrop-blur-md p-3 px-4 rounded-2xl border border-white/90 shadow-2xs">
+          <span className="text-xs font-semibold text-slate-600">
+            {lugares.length} establecimientos en lista
+          </span>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="px-3.5 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:scale-95 rounded-xl transition-all cursor-pointer shadow-xs flex items-center gap-1.5"
+          >
+            <span className="text-sm font-bold leading-none">+</span>
+            <span>Agregar Lugar</span>
+          </button>
+        </div>
+
         <main>
           {vista === "tarjetas" ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -108,6 +138,12 @@ const App = () => {
           )}
         </main>
       </div>
+
+      <AgregarLugarModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAgregar={handleAgregarLugar}
+      />
     </div>
   );
 };
