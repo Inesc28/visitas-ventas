@@ -23,20 +23,23 @@ const App = () => {
         if (docSnap.exists()) {
           const data = docSnap.data();
           if (data && Array.isArray(data.items) && data.items.length > 0) {
+            console.log("☁️ Datos recibidos de Firestore:", data.items);
             setLugares(data.items);
           } else {
+            console.log("⚠️ Documento vacío, inicializando con JSON...");
             setDoc(docRef, { items: initialData });
             setLugares(initialData);
           }
         } else {
+          console.log("⚠️ Documento 'general' no existe en Firestore, creándolo con JSON...");
           setDoc(docRef, { items: initialData });
           setLugares(initialData);
         }
         setCargando(false);
       },
       (error) => {
-        console.error("❌ Error al leer de Firestore:", error);
-        alert(`Error al conectar con Firebase: ${error.message}`);
+        console.error("❌ ERROR AL LEER DE FIRESTORE:", error);
+        alert(`❌ Error al conectar con Firebase:\n${error.message}`);
         setLugares(initialData);
         setCargando(false);
       }
@@ -46,15 +49,13 @@ const App = () => {
   }, []);
 
   const actualizarEnNube = async (nuevosLugares) => {
-    setLugares(nuevosLugares);
-
     try {
       const docRef = doc(db, "promotoras_app", "general");
       await setDoc(docRef, { items: nuevosLugares });
-      console.log("✅ Guardado con éxito en Firestore");
+      console.log("✅ ¡Guardado en la nube con éxito!");
     } catch (error) {
-      console.error("❌ Error al guardar en Firestore:", error);
-      alert(`⚠️ NO se pudo guardar en la nube: ${error.message}`);
+      console.error("❌ ERROR AL GUARDAR EN FIRESTORE:", error);
+      alert(`⚠️ NO SE GUARDÓ EN LA NUBE:\n\n${error.message}\n\nSi dice 'permission-denied', debes cambiar las Reglas en la Consola de Firebase.`);
     }
   };
 
