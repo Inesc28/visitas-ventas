@@ -7,12 +7,14 @@ import { Header } from "./components/Header";
 import { LugarCard } from "./components/LugarCard";
 import { EstadisticasView } from "./components/EstadisticasView";
 import { AgregarLugarModal } from "./components/AgregarLugarModal";
+import { CargaMasivaModal } from "./components/CargaMasivaModal";
 
 const App = () => {
   const [vista, setVista] = useState("tarjetas");
   const [lugares, setLugares] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCargaMasivaOpen, setIsCargaMasivaOpen] = useState(false);
 
   useEffect(() => {
     const cargarDatos = async () => {
@@ -50,9 +52,9 @@ const App = () => {
     try {
       const docRef = doc(db, "promotoras_app", "general");
       await setDoc(docRef, { items: nuevosLugares });
-      console.log(" Guardado con éxito en Firestore");
+      console.log("Guardado con éxito en Firestore");
     } catch (error) {
-      console.error(" Error al guardar:", error);
+      console.error("Error al guardar:", error);
       alert(`⚠️ Error al guardar en la nube:\n\n${error.message}`);
     }
   };
@@ -70,6 +72,27 @@ const App = () => {
 
     const listaActualizada = [nuevoLugar, ...lugares];
     actualizarEnNube(listaActualizada);
+  };
+
+  const handleImportarMasivo = (listaNuevos) => {
+    let ultimoId =
+      lugares.length > 0
+        ? Math.max(...lugares.map((l) => Number(l.id) || 0))
+        : 0;
+
+    const nuevosFormateados = listaNuevos.map((item) => {
+      ultimoId += 1;
+      return {
+        id: ultimoId,
+        lugar: item.lugar,
+        encargado: item.encargado || "",
+        promotora: item.promotora || "",
+        estatus: item.estatus || "",
+      };
+    });
+
+    const listaCompleta = [...nuevosFormateados, ...lugares];
+    actualizarEnNube(listaCompleta);
   };
 
   const handleEstatusSelect = (id, nuevoEstatus) => {
@@ -124,13 +147,21 @@ const App = () => {
           <span className="text-xs font-semibold text-slate-400">
             {lugares.length} establecimientos en lista
           </span>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="px-3.5 py-1.5 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 active:scale-95 rounded-xl transition-all cursor-pointer shadow-md shadow-red-950/50 flex items-center gap-1.5 border border-red-500/30"
-          >
-            <span className="text-sm font-bold leading-none">+</span>
-            <span>Agregar Lugar</span>
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setIsCargaMasivaOpen(true)}
+              className="px-3 py-1.5 text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-xl transition-all border border-slate-700 cursor-pointer"
+            >
+              📋 Carga Masiva
+            </button>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="px-3.5 py-1.5 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 active:scale-95 rounded-xl transition-all cursor-pointer shadow-md shadow-red-950/50 flex items-center gap-1.5 border border-red-500/30"
+            >
+              <span className="text-sm font-bold leading-none">+</span>
+              <span>Agregar Lugar</span>
+            </button>
+          </div>
         </div>
 
         <main>
@@ -157,6 +188,12 @@ const App = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onAgregar={handleAgregarLugar}
+      />
+
+      <CargaMasivaModal
+        isOpen={isCargaMasivaOpen}
+        onClose={() => setIsCargaMasivaOpen(false)}
+        onImportarMasivo={handleImportarMasivo}
       />
     </div>
   );
