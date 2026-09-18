@@ -8,10 +8,12 @@ import { LugarCard } from "./components/LugarCard";
 import { EstadisticasView } from "./components/EstadisticasView";
 import { AgregarLugarModal } from "./components/AgregarLugarModal";
 import { CargaMasivaModal } from "./components/CargaMasivaModal";
+import { Buscador } from "./components/Buscador";
 
 const App = () => {
   const [vista, setVista] = useState("tarjetas");
   const [lugares, setLugares] = useState([]);
+  const [busqueda, setBusqueda] = useState("");
   const [cargando, setCargando] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCargaMasivaOpen, setIsCargaMasivaOpen] = useState(false);
@@ -24,7 +26,7 @@ const App = () => {
 
         if (docSnap.exists()) {
           const data = docSnap.data();
-          if (data && Array.isArray(data.items) && data.items.length > 0) {
+          if (data && Array.isArray(data.items)) {
             setLugares(data.items);
           } else {
             await setDoc(docRef, { items: initialData });
@@ -95,9 +97,21 @@ const App = () => {
     actualizarEnNube(listaCompleta);
   };
 
+  const handleBorrarLugar = (id) => {
+    const lugarABorrar = lugares.find((l) => String(l.id) === String(id));
+    const confirmacion = window.confirm(
+      `¿Estás seguro de que deseas eliminar "${lugarABorrar?.lugar || "este lugar"}"?`
+    );
+
+    if (confirmacion) {
+      const nuevos = lugares.filter((lugar) => String(lugar.id) !== String(id));
+      actualizarEnNube(nuevos);
+    }
+  };
+
   const handleEstatusSelect = (id, nuevoEstatus) => {
     const nuevos = lugares.map((lugar) => {
-      if (lugar.id === id) {
+      if (String(lugar.id) === String(id)) {
         const estatusFinal = lugar.estatus === nuevoEstatus ? "" : nuevoEstatus;
         return { ...lugar, estatus: estatusFinal };
       }
@@ -108,17 +122,28 @@ const App = () => {
 
   const handlePromotoraChange = (id, nombre) => {
     const nuevos = lugares.map((lugar) =>
-      lugar.id === id ? { ...lugar, promotora: nombre } : lugar
+      String(lugar.id) === String(id) ? { ...lugar, promotora: nombre } : lugar
     );
     actualizarEnNube(nuevos);
   };
 
   const handleEncargadoChange = (id, nombre) => {
     const nuevos = lugares.map((lugar) =>
-      lugar.id === id ? { ...lugar, encargado: nombre } : lugar
+      String(lugar.id) === String(id) ? { ...lugar, encargado: nombre } : lugar
     );
     actualizarEnNube(nuevos);
   };
+
+  const lugaresFiltrados = lugares.filter((item) => {
+    const query = busqueda.toLowerCase().trim();
+    if (!query) return true;
+
+    return (
+      item.lugar?.toLowerCase().includes(query) ||
+      item.encargado?.toLowerCase().includes(query) ||
+      item.promotora?.toLowerCase().includes(query)
+    );
+  });
 
   const gestionadosCount = lugares.filter((l) => l.estatus).length;
 
@@ -127,7 +152,7 @@ const App = () => {
       <div className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-300 text-sm font-semibold">
         <span className="flex items-center gap-2">
           <span className="w-2.5 h-2.5 bg-red-600 rounded-full animate-ping"></span>
-          Cargando datos desde Firestore...
+          Cargando...
         </span>
       </div>
     );
@@ -143,41 +168,63 @@ const App = () => {
           gestionados={gestionadosCount}
         />
 
-        <div className="flex justify-between items-center bg-slate-900/80 backdrop-blur-md p-3 px-4 rounded-2xl border border-slate-800/80 shadow-lg shadow-black/40">
-          <span className="text-xs font-semibold text-slate-400">
-            {lugares.length} establecimientos en lista
-          </span>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setIsCargaMasivaOpen(true)}
-              className="px-3 py-1.5 text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-xl transition-all border border-slate-700 cursor-pointer"
-            >
-              📋 Carga Masiva
-            </button>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="px-3.5 py-1.5 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 active:scale-95 rounded-xl transition-all cursor-pointer shadow-md shadow-red-950/50 flex items-center gap-1.5 border border-red-500/30"
-            >
-              <span className="text-sm font-bold leading-none">+</span>
-              <span>Agregar Lugar</span>
-            </button>
+        <div className="flex flex-col sm:flex-row gap-3 justify-between items-stretch sm:items-center bg-slate-900/80 backdrop-blur-md p-3 px-4 rounded-2xl border border-slate-800/80 shadow-lg shadow-black/40">
+          <Buscador busqueda={busqueda} onBusquedaChange={setBusqueda} />
+
+          <div className="flex items-center justify-between sm:justify-end gap-3">
+            <span className="text-xs font-semibold text-slate-400 whitespace-nowrap">
+              {busqueda
+                ? `${lugaresFiltrados.length} de ${lugares.length}`
+                : `${lugares.length} en lista`}
+            </span>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => setIsCargaMasivaOpen(true)}
+                className="px-3 py-1.5 text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-xl transition-all border border-slate-700 cursor-pointer"
+              >
+                Carga Masiva
+              </button>
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="px-3.5 py-1.5 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 active:scale-95 rounded-xl transition-all cursor-pointer shadow-md shadow-red-950/50 flex items-center gap-1.5 border border-red-500/30"
+              >
+                <span className="text-sm font-bold leading-none">+</span>
+                <span>Agregar Lugar</span>
+              </button>
+            </div>
           </div>
         </div>
 
         <main>
           {vista === "tarjetas" ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {lugares.map((item) => (
-                <LugarCard
-                  key={item.id}
-                  item={item}
-                  opcionesEstatus={OPCIONES_ESTATUS}
-                  onEstatusChange={handleEstatusSelect}
-                  onPromotoraChange={handlePromotoraChange}
-                  onEncargadoChange={handleEncargadoChange}
-                />
-              ))}
-            </div>
+            lugaresFiltrados.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {lugaresFiltrados.map((item) => (
+                  <LugarCard
+                    key={item.id}
+                    item={item}
+                    opcionesEstatus={OPCIONES_ESTATUS}
+                    onEstatusChange={handleEstatusSelect}
+                    onPromotoraChange={handlePromotoraChange}
+                    onEncargadoChange={handleEncargadoChange}
+                    onBorrarLugar={handleBorrarLugar}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 bg-slate-900/40 rounded-2xl border border-slate-800/50">
+                <p className="text-slate-400 text-sm font-medium">
+                  No se encontraron resultados para "{busqueda}"
+                </p>
+                <button
+                  onClick={() => setBusqueda("")}
+                  className="mt-2 text-xs font-semibold text-red-500 hover:underline cursor-pointer"
+                >
+                  Limpiar búsqueda
+                </button>
+              </div>
+            )
           ) : (
             <EstadisticasView lugares={lugares} />
           )}
