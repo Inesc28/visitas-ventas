@@ -14,14 +14,20 @@ const App = () => {
   const [cargando, setCargando] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const docRef = doc(db, "promotoras_app", "general");
-
   useEffect(() => {
+    const docRef = doc(db, "promotoras_app", "general");
+
     const unsubscribe = onSnapshot(
       docRef,
       (docSnap) => {
         if (docSnap.exists()) {
-          setLugares(docSnap.data().items || []);
+          const data = docSnap.data();
+          if (data && Array.isArray(data.items) && data.items.length > 0) {
+            setLugares(data.items);
+          } else {
+            setDoc(docRef, { items: initialData });
+            setLugares(initialData);
+          }
         } else {
           setDoc(docRef, { items: initialData });
           setLugares(initialData);
@@ -29,7 +35,9 @@ const App = () => {
         setCargando(false);
       },
       (error) => {
-        console.error("Error en Firebase:", error);
+        console.error("❌ Error al leer de Firestore:", error);
+        alert(`Error al conectar con Firebase: ${error.message}`);
+        setLugares(initialData);
         setCargando(false);
       }
     );
@@ -38,11 +46,15 @@ const App = () => {
   }, []);
 
   const actualizarEnNube = async (nuevosLugares) => {
+    setLugares(nuevosLugares);
+
     try {
+      const docRef = doc(db, "promotoras_app", "general");
       await setDoc(docRef, { items: nuevosLugares });
+      console.log("✅ Guardado con éxito en Firestore");
     } catch (error) {
-      console.error("Error al actualizar la nube:", error);
-      alert("Error al guardar en Firebase. Verifica tus reglas o conexión.");
+      console.error("❌ Error al guardar en Firestore:", error);
+      alert(`⚠️ NO se pudo guardar en la nube: ${error.message}`);
     }
   };
 
