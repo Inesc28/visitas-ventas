@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { doc, onSnapshot, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "./firebase";
 import initialData from "../Data/data.json";
 import { OPCIONES_ESTATUS } from "./constants/estatusOptions";
@@ -15,47 +15,45 @@ const App = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    const docRef = doc(db, "promotoras_app", "general");
+    const cargarDatos = async () => {
+      try {
+        const docRef = doc(db, "promotoras_app", "general");
+        const docSnap = await getDoc(docRef);
 
-    const unsubscribe = onSnapshot(
-      docRef,
-      (docSnap) => {
         if (docSnap.exists()) {
           const data = docSnap.data();
           if (data && Array.isArray(data.items) && data.items.length > 0) {
-            console.log("☁️ Datos recibidos de Firestore:", data.items);
             setLugares(data.items);
           } else {
-            console.log("⚠️ Documento vacío, inicializando con JSON...");
-            setDoc(docRef, { items: initialData });
+            await setDoc(docRef, { items: initialData });
             setLugares(initialData);
           }
         } else {
-          console.log("⚠️ Documento 'general' no existe en Firestore, creándolo con JSON...");
-          setDoc(docRef, { items: initialData });
+          await setDoc(docRef, { items: initialData });
           setLugares(initialData);
         }
-        setCargando(false);
-      },
-      (error) => {
-        console.error("❌ ERROR AL LEER DE FIRESTORE:", error);
-        alert(`❌ Error al conectar con Firebase:\n${error.message}`);
+      } catch (error) {
+        console.error("Error al cargar:", error);
+        alert(`Error al conectar con Firestore: ${error.message}`);
         setLugares(initialData);
+      } finally {
         setCargando(false);
       }
-    );
+    };
 
-    return () => unsubscribe();
+    cargarDatos();
   }, []);
 
   const actualizarEnNube = async (nuevosLugares) => {
+    setLugares(nuevosLugares);
+
     try {
       const docRef = doc(db, "promotoras_app", "general");
       await setDoc(docRef, { items: nuevosLugares });
-      console.log("✅ ¡Guardado en la nube con éxito!");
+      console.log(" Guardado con éxito en Firestore");
     } catch (error) {
-      console.error("❌ ERROR AL GUARDAR EN FIRESTORE:", error);
-      alert(`⚠️ NO SE GUARDÓ EN LA NUBE:\n\n${error.message}\n\nSi dice 'permission-denied', debes cambiar las Reglas en la Consola de Firebase.`);
+      console.error(" Error al guardar:", error);
+      alert(`⚠️ Error al guardar en la nube:\n\n${error.message}`);
     }
   };
 
@@ -106,7 +104,7 @@ const App = () => {
       <div className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-300 text-sm font-semibold">
         <span className="flex items-center gap-2">
           <span className="w-2.5 h-2.5 bg-red-600 rounded-full animate-ping"></span>
-          Cargando datos en tiempo real...
+          Cargando datos desde Firestore...
         </span>
       </div>
     );
