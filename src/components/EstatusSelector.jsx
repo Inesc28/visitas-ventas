@@ -14,10 +14,10 @@ export const EstatusSelector = ({ estatusActual, opciones, onSelect }) => {
               key={opcion.id}
               type="button"
               onClick={() => onSelect(opcion.label)}
-              className={`w-full text-left px-3 py-2 text-xs font-medium rounded-xl border transition-all flex items-center justify-between ${
+              className={`w-full text-left px-3 py-2 text-xs font-medium rounded-xl border transition-all flex items-center justify-between cursor-pointer ${
                 isSelected
                   ? opcion.activeClass
-                  : "bg-white/60 text-slate-600 border-slate-200/70 hover:border-slate-300 hover:bg-white/90"
+                  : "bg-slate-950/80 text-slate-300 border-slate-800 hover:border-slate-700 hover:bg-slate-800/50"
               }`}
             >
               <span className="flex items-center gap-2">
@@ -27,7 +27,7 @@ export const EstatusSelector = ({ estatusActual, opciones, onSelect }) => {
                 {opcion.label}
               </span>
               {isSelected && (
-                <span className="text-[10px] font-bold text-slate-500">✓</span>
+                <span className="text-[10px] font-bold text-slate-300">✓</span>
               )}
             </button>
           );

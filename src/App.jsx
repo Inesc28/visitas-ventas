@@ -38,11 +38,11 @@ const App = () => {
   }, []);
 
   const actualizarEnNube = async (nuevosLugares) => {
-    setLugares(nuevosLugares); 
     try {
       await setDoc(docRef, { items: nuevosLugares });
     } catch (error) {
       console.error("Error al actualizar la nube:", error);
+      alert("Error al guardar en Firebase. Verifica tus reglas o conexión.");
     }
   };
 
@@ -90,14 +90,17 @@ const App = () => {
 
   if (cargando) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-100 text-slate-600 text-sm font-semibold">
-        Cargando datos en tiempo real...
+      <div className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-300 text-sm font-semibold">
+        <span className="flex items-center gap-2">
+          <span className="w-2.5 h-2.5 bg-red-600 rounded-full animate-ping"></span>
+          Cargando datos en tiempo real...
+        </span>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-100 via-indigo-50/40 to-slate-200/80 text-slate-800 antialiased p-4 sm:p-8">
+    <div className="min-h-screen bg-slate-950 text-slate-100 antialiased p-4 sm:p-8 border-t-2 border-red-600">
       <div className="max-w-4xl mx-auto space-y-6">
         <Header
           vistaActual={vista}
@@ -106,13 +109,13 @@ const App = () => {
           gestionados={gestionadosCount}
         />
 
-        <div className="flex justify-between items-center bg-white/70 backdrop-blur-md p-3 px-4 rounded-2xl border border-white/90 shadow-2xs">
-          <span className="text-xs font-semibold text-slate-600">
+        <div className="flex justify-between items-center bg-slate-900/80 backdrop-blur-md p-3 px-4 rounded-2xl border border-slate-800/80 shadow-lg shadow-black/40">
+          <span className="text-xs font-semibold text-slate-400">
             {lugares.length} establecimientos en lista
           </span>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="px-3.5 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:scale-95 rounded-xl transition-all cursor-pointer shadow-xs flex items-center gap-1.5"
+            className="px-3.5 py-1.5 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 active:scale-95 rounded-xl transition-all cursor-pointer shadow-md shadow-red-950/50 flex items-center gap-1.5 border border-red-500/30"
           >
             <span className="text-sm font-bold leading-none">+</span>
             <span>Agregar Lugar</span>

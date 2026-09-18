@@ -9,21 +9,21 @@ export const LugarCard = ({
   onEncargadoChange,
 }) => {
   return (
-    <div className="bg-white/85 backdrop-blur-md border border-white/90 rounded-2xl p-5 shadow-sm shadow-slate-200/60 flex flex-col justify-between gap-4 transition-all hover:shadow-md hover:border-indigo-200/60">
+    <div className="bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-2xl p-5 shadow-lg shadow-black/40 flex flex-col justify-between gap-4 transition-all hover:border-red-600/40 hover:shadow-red-950/20">
       <div>
         <div className="flex items-start justify-between gap-3 mb-1">
-          <h2 className="text-base font-semibold text-slate-900 leading-snug">
+          <h2 className="text-base font-semibold text-white leading-snug">
             {item.lugar}
           </h2>
           {item.estatus && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200/60 shrink-0">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-950/80 text-red-400 border border-red-800/60 shrink-0">
               Gestionado
             </span>
           )}
         </div>
       </div>
 
-      <div className="space-y-3 pt-3 border-t border-slate-100">
+      <div className="space-y-3 pt-3 border-t border-slate-800">
         <div className="space-y-1">
           <label className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
             Persona con la que se habló
@@ -33,7 +33,7 @@ export const LugarCard = ({
             placeholder="Ej. Gerente, dueño, nombre..."
             value={item.encargado || ""}
             onChange={(e) => onEncargadoChange(item.id, e.target.value)}
-            className="w-full px-3 py-1.5 text-xs text-slate-800 bg-white/80 border border-slate-200/80 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400"
+            className="w-full px-3 py-1.5 text-xs text-slate-100 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600/30 transition-all placeholder:text-slate-500"
           />
         </div>
 
@@ -46,7 +46,7 @@ export const LugarCard = ({
             placeholder="Tu nombre..."
             value={item.promotora || ""}
             onChange={(e) => onPromotoraChange(item.id, e.target.value)}
-            className="w-full px-3 py-1.5 text-xs text-slate-800 bg-white/80 border border-slate-200/80 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400"
+            className="w-full px-3 py-1.5 text-xs text-slate-100 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600/30 transition-all placeholder:text-slate-500"
           />
         </div>
 
