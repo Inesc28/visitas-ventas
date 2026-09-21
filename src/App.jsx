@@ -80,7 +80,10 @@ const App = () => {
         promotora: item.promotora || "",
         estatus: item.estatus || "",
         zona: item.zona || "",
-        tipo: item.tipo || ""
+        tipo: item.tipo || "",
+        direccionCompleta: item.direccionCompleta || "",
+        latitud: item.latitud || null,
+        longitud: item.longitud || null
       };
     });
     actualizarEnNube([...nuevosFormateados, ...lugares]);
@@ -112,12 +115,31 @@ const App = () => {
     actualizarEnNube(lugares.map(l => String(l.id) === String(id) ? { ...l, tipo: valor } : l));
   };
 
+  // 👈 NUEVO: Manejador para actualizar ubicación de Geoapify desde la tarjeta
+  const handleUbicacionExactaChange = (id, datosUbicacion) => {
+    if (!datosUbicacion) return;
+    actualizarEnNube(
+      lugares.map((l) =>
+        String(l.id) === String(id)
+          ? {
+              ...l,
+              latitud: datosUbicacion.latitud,
+              longitud: datosUbicacion.longitud,
+              direccionCompleta: datosUbicacion.direccionCompleta,
+              zona: datosUbicacion.zona || l.zona
+            }
+          : l
+      )
+    );
+  };
+
   const lugaresFiltrados = lugares.filter((item) => {
     const query = busqueda.toLowerCase().trim();
     const matchBusqueda = !query || 
       item.lugar?.toLowerCase().includes(query) ||
       item.encargado?.toLowerCase().includes(query) ||
-      item.promotora?.toLowerCase().includes(query);
+      item.promotora?.toLowerCase().includes(query) ||
+      item.direccionCompleta?.toLowerCase().includes(query);
 
     const matchZona = filtroZona ? item.zona === filtroZona : true;
 
@@ -169,6 +191,7 @@ const App = () => {
                   onBorrarLugar={handleBorrarLugar}
                   onZonaChange={handleZonaChange}
                   onTipoChange={handleTipoChange}
+                  onUbicacionExactaChange={handleUbicacionExactaChange} 
                 />
               ))}
             </div>
