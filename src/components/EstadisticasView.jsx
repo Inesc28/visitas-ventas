@@ -128,10 +128,12 @@ export const EstadisticasView = ({ lugares = [] }) => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
+          <table className="w-full text-left text-xs border-collapse whitespace-nowrap">
             <thead>
               <tr className="bg-slate-950/80 text-slate-400 uppercase tracking-wider font-semibold border-b border-slate-800">
                 <th className="py-3.5 px-4">Establecimiento</th>
+                <th className="py-3.5 px-4">Tipo</th>
+                <th className="py-3.5 px-4">Zona</th>
                 <th className="py-3.5 px-4">Atendió / Persona</th>
                 <th className="py-3.5 px-4">Promotora</th>
                 <th className="py-3.5 px-4">Estatus</th>
@@ -145,6 +147,22 @@ export const EstadisticasView = ({ lugares = [] }) => {
                 >
                   <td className="py-3.5 px-4 font-semibold text-white">
                     {item.lugar}
+                  </td>
+                  <td className="py-3.5 px-4">
+                    {item.tipo ? (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-slate-800 text-slate-300 border border-slate-700">
+                        {item.tipo}
+                      </span>
+                    ) : (
+                      <span className="text-slate-600 italic">N/A</span>
+                    )}
+                  </td>
+                  <td className="py-3.5 px-4">
+                    {item.zona ? (
+                      <span>{item.zona}</span>
+                    ) : (
+                      <span className="text-slate-600 italic">N/A</span>
+                    )}
                   </td>
                   <td className="py-3.5 px-4">
                     {item.encargado || (

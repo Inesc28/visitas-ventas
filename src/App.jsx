@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "./firebase";
 import initialData from "../Data/data.json";
@@ -17,6 +17,8 @@ const App = () => {
   const [cargando, setCargando] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCargaMasivaOpen, setIsCargaMasivaOpen] = useState(false);
+  
+  const [filtroZona, setFiltroZona] = useState("");
 
   useEffect(() => {
     const cargarDatos = async () => {
@@ -48,40 +50,27 @@ const App = () => {
     cargarDatos();
   }, []);
 
+  const zonasUnicas = useMemo(() => {
+    return [...new Set(lugares.map(l => l.zona).filter(Boolean))].sort();
+  }, [lugares]);
+
   const actualizarEnNube = async (nuevosLugares) => {
     setLugares(nuevosLugares);
-
     try {
       const docRef = doc(db, "promotoras_app", "general");
       await setDoc(docRef, { items: nuevosLugares });
-      console.log("Guardado con éxito en Firestore");
     } catch (error) {
       console.error("Error al guardar:", error);
-      alert(`⚠️ Error al guardar en la nube:\n\n${error.message}`);
     }
   };
 
   const handleAgregarLugar = (datosNuevoLugar) => {
-    const nuevoId =
-      lugares.length > 0
-        ? Math.max(...lugares.map((l) => Number(l.id) || 0)) + 1
-        : 1;
-
-    const nuevoLugar = {
-      id: nuevoId,
-      ...datosNuevoLugar,
-    };
-
-    const listaActualizada = [nuevoLugar, ...lugares];
-    actualizarEnNube(listaActualizada);
+    const nuevoId = lugares.length > 0 ? Math.max(...lugares.map((l) => Number(l.id) || 0)) + 1 : 1;
+    actualizarEnNube([{ id: nuevoId, ...datosNuevoLugar }, ...lugares]);
   };
 
   const handleImportarMasivo = (listaNuevos) => {
-    let ultimoId =
-      lugares.length > 0
-        ? Math.max(...lugares.map((l) => Number(l.id) || 0))
-        : 0;
-
+    let ultimoId = lugares.length > 0 ? Math.max(...lugares.map((l) => Number(l.id) || 0)) : 0;
     const nuevosFormateados = listaNuevos.map((item) => {
       ultimoId += 1;
       return {
@@ -90,158 +79,107 @@ const App = () => {
         encargado: item.encargado || "",
         promotora: item.promotora || "",
         estatus: item.estatus || "",
+        zona: item.zona || "",
+        tipo: item.tipo || ""
       };
     });
-
-    const listaCompleta = [...nuevosFormateados, ...lugares];
-    actualizarEnNube(listaCompleta);
+    actualizarEnNube([...nuevosFormateados, ...lugares]);
   };
 
   const handleBorrarLugar = (id) => {
-    const lugarABorrar = lugares.find((l) => String(l.id) === String(id));
-    const confirmacion = window.confirm(
-      `¿Estás seguro de que deseas eliminar "${lugarABorrar?.lugar || "este lugar"}"?`
-    );
-
-    if (confirmacion) {
-      const nuevos = lugares.filter((lugar) => String(lugar.id) !== String(id));
-      actualizarEnNube(nuevos);
+    if (window.confirm("¿Estás seguro de que deseas eliminar este lugar?")) {
+      actualizarEnNube(lugares.filter((lugar) => String(lugar.id) !== String(id)));
     }
   };
 
   const handleEstatusSelect = (id, nuevoEstatus) => {
-    const nuevos = lugares.map((lugar) => {
-      if (String(lugar.id) === String(id)) {
-        const estatusFinal = lugar.estatus === nuevoEstatus ? "" : nuevoEstatus;
-        return { ...lugar, estatus: estatusFinal };
-      }
-      return lugar;
-    });
-    actualizarEnNube(nuevos);
+    actualizarEnNube(lugares.map(l => String(l.id) === String(id) ? { ...l, estatus: l.estatus === nuevoEstatus ? "" : nuevoEstatus } : l));
   };
 
   const handlePromotoraChange = (id, nombre) => {
-    const nuevos = lugares.map((lugar) =>
-      String(lugar.id) === String(id) ? { ...lugar, promotora: nombre } : lugar
-    );
-    actualizarEnNube(nuevos);
+    actualizarEnNube(lugares.map(l => String(l.id) === String(id) ? { ...l, promotora: nombre } : l));
   };
 
   const handleEncargadoChange = (id, nombre) => {
-    const nuevos = lugares.map((lugar) =>
-      String(lugar.id) === String(id) ? { ...lugar, encargado: nombre } : lugar
-    );
-    actualizarEnNube(nuevos);
+    actualizarEnNube(lugares.map(l => String(l.id) === String(id) ? { ...l, encargado: nombre } : l));
+  };
+
+  const handleZonaChange = (id, valor) => {
+    actualizarEnNube(lugares.map(l => String(l.id) === String(id) ? { ...l, zona: valor } : l));
+  };
+
+  const handleTipoChange = (id, valor) => {
+    actualizarEnNube(lugares.map(l => String(l.id) === String(id) ? { ...l, tipo: valor } : l));
   };
 
   const lugaresFiltrados = lugares.filter((item) => {
     const query = busqueda.toLowerCase().trim();
-    if (!query) return true;
-
-    return (
+    const matchBusqueda = !query || 
       item.lugar?.toLowerCase().includes(query) ||
       item.encargado?.toLowerCase().includes(query) ||
-      item.promotora?.toLowerCase().includes(query)
-    );
+      item.promotora?.toLowerCase().includes(query);
+
+    const matchZona = filtroZona ? item.zona === filtroZona : true;
+
+    return matchBusqueda && matchZona;
   });
 
-  const gestionadosCount = lugares.filter((l) => l.estatus).length;
-
-  if (cargando) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-300 text-sm font-semibold">
-        <span className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 bg-red-600 rounded-full animate-ping"></span>
-          Cargando...
-        </span>
-      </div>
-    );
-  }
+  if (cargando) return <div className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-300">Cargando...</div>;
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 antialiased p-4 sm:p-8 border-t-2 border-red-600">
       <div className="max-w-4xl mx-auto space-y-6">
-        <Header
-          vistaActual={vista}
-          onCambiarVista={setVista}
-          total={lugares.length}
-          gestionados={gestionadosCount}
-        />
+        <Header vistaActual={vista} onCambiarVista={setVista} total={lugares.length} gestionados={lugares.filter(l => l.estatus).length} />
 
-        <div className="flex flex-col sm:flex-row gap-3 justify-between items-stretch sm:items-center bg-slate-900/80 backdrop-blur-md p-3 px-4 rounded-2xl border border-slate-800/80 shadow-lg shadow-black/40">
-          <Buscador busqueda={busqueda} onBusquedaChange={setBusqueda} />
-
-          <div className="flex items-center justify-between sm:justify-end gap-3">
-            <span className="text-xs font-semibold text-slate-400 whitespace-nowrap">
-              {busqueda
-                ? `${lugaresFiltrados.length} de ${lugares.length}`
-                : `${lugares.length} en lista`}
-            </span>
-
-            <div className="flex gap-2">
-              <button
-                onClick={() => setIsCargaMasivaOpen(true)}
-                className="px-3 py-1.5 text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-xl transition-all border border-slate-700 cursor-pointer"
-              >
-                Carga Masiva
-              </button>
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="px-3.5 py-1.5 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 active:scale-95 rounded-xl transition-all cursor-pointer shadow-md shadow-red-950/50 flex items-center gap-1.5 border border-red-500/30"
-              >
-                <span className="text-sm font-bold leading-none">+</span>
-                <span>Agregar Lugar</span>
-              </button>
+        <div className="flex flex-col lg:flex-row gap-4 justify-between items-stretch lg:items-center bg-slate-900/80 backdrop-blur-md p-3 px-4 rounded-2xl border border-slate-800/80 shadow-lg shadow-black/40">
+          <div className="flex flex-col sm:flex-row gap-2 flex-grow">
+            <div className="flex-grow min-w-[200px]">
+              <Buscador busqueda={busqueda} onBusquedaChange={setBusqueda} />
             </div>
+            
+            <div className="flex gap-2">
+              <select value={filtroZona} onChange={(e) => setFiltroZona(e.target.value)} className="bg-slate-950 border border-slate-800 text-xs text-slate-300 rounded-xl px-3 py-2 focus:outline-none focus:border-red-600 cursor-pointer">
+                <option value="">📍 Todas las Zonas</option>
+                {zonasUnicas.map(z => <option key={z} value={z}>{z}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button onClick={() => setIsCargaMasivaOpen(true)} className="px-3 py-1.5 text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-xl border border-slate-700">
+              Carga Masiva
+            </button>
+            <button onClick={() => setIsModalOpen(true)} className="px-3.5 py-1.5 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl">
+              + Agregar
+            </button>
           </div>
         </div>
 
         <main>
           {vista === "tarjetas" ? (
-            lugaresFiltrados.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {lugaresFiltrados.map((item) => (
-                  <LugarCard
-                    key={item.id}
-                    item={item}
-                    opcionesEstatus={OPCIONES_ESTATUS}
-                    onEstatusChange={handleEstatusSelect}
-                    onPromotoraChange={handlePromotoraChange}
-                    onEncargadoChange={handleEncargadoChange}
-                    onBorrarLugar={handleBorrarLugar}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12 bg-slate-900/40 rounded-2xl border border-slate-800/50">
-                <p className="text-slate-400 text-sm font-medium">
-                  No se encontraron resultados para "{busqueda}"
-                </p>
-                <button
-                  onClick={() => setBusqueda("")}
-                  className="mt-2 text-xs font-semibold text-red-500 hover:underline cursor-pointer"
-                >
-                  Limpiar búsqueda
-                </button>
-              </div>
-            )
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {lugaresFiltrados.map((item) => (
+                <LugarCard
+                  key={item.id}
+                  item={item}
+                  opcionesEstatus={OPCIONES_ESTATUS}
+                  onEstatusChange={handleEstatusSelect}
+                  onPromotoraChange={handlePromotoraChange}
+                  onEncargadoChange={handleEncargadoChange}
+                  onBorrarLugar={handleBorrarLugar}
+                  onZonaChange={handleZonaChange}
+                  onTipoChange={handleTipoChange}
+                />
+              ))}
+            </div>
           ) : (
             <EstadisticasView lugares={lugares} />
           )}
         </main>
       </div>
 
-      <AgregarLugarModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onAgregar={handleAgregarLugar}
-      />
-
-      <CargaMasivaModal
-        isOpen={isCargaMasivaOpen}
-        onClose={() => setIsCargaMasivaOpen(false)}
-        onImportarMasivo={handleImportarMasivo}
-      />
+      <AgregarLugarModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAgregar={handleAgregarLugar} />
+      <CargaMasivaModal isOpen={isCargaMasivaOpen} onClose={() => setIsCargaMasivaOpen(false)} onImportarMasivo={handleImportarMasivo} />
     </div>
   );
 };
